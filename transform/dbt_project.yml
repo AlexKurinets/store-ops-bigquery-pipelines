@@ -1,0 +1,46 @@
+name: storeops
+version: "1.0.0"
+config-version: 2
+profile: storeops
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+target-path: "target"
+clean-targets: ["target", "logs"]
+
+vars:
+  lookback_days: 3            # incremental models rebuild this many trailing business dates
+  recon_tolerance_pct: 0.005  # POS within 0.5% of the labor system's imported sales counts as a match
+  recon_tolerance_abs: 1.00   # or within a dollar, for small days
+  recon_target: 0.99
+
+seeds:
+  storeops:
+    +schema: reference
+    +column_types:
+      source_code: "{{ 'string' if target.type == 'bigquery' else 'text' }}"
+      plu: "{{ 'string' if target.type == 'bigquery' else 'text' }}"
+      distributor_item_number: "{{ 'string' if target.type == 'bigquery' else 'text' }}"
+      valid_from: date
+      valid_to: date
+      opened_on: date
+
+models:
+  storeops:
+    +persist_docs:
+      relation: true
+      columns: true
+    staged:
+      +schema: staged
+      +materialized: view
+    conformed:
+      +schema: conformed
+      +materialized: table
+    restricted:
+      +schema: restricted
+      +materialized: table
+    metrics:
+      +schema: metrics
+      +materialized: table

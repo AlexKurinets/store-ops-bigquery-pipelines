@@ -1,0 +1,103 @@
+system,source_code,store_key,valid_from,valid_to,is_reportable,note
+pos,0101,1,2015-06-01,,true,
+pos,0102,2,2015-06-01,,true,
+pos,0103,3,2015-06-01,,true,
+pos,0104,4,2015-06-01,,true,
+pos,0105,5,2015-06-01,,true,
+pos,0106,6,2015-06-01,,true,
+pos,0107,7,2015-06-01,,true,
+pos,0108,8,2015-06-01,,true,
+pos,0109,9,2015-06-01,2026-10-05,true,renumbered after the October remodel
+pos,0131,9,2026-10-06,,true,number after the remodel
+pos,0110,10,2015-06-01,,true,
+pos,0111,11,2015-06-01,,true,
+pos,0112,12,2015-06-01,,true,
+pos,0113,13,2015-06-01,,true,
+pos,0114,14,2015-06-01,,true,
+pos,0115,15,2015-06-01,,true,
+pos,0116,16,2015-06-01,,true,
+pos,0117,17,2015-06-01,,true,
+pos,0118,18,2015-06-01,,true,
+pos,0119,19,2015-06-01,,true,
+pos,0120,20,2015-06-01,,true,
+timekeeping,TX-214,1,2015-06-01,,true,
+timekeeping,TX-219,2,2015-06-01,,true,
+timekeeping,TX-305,3,2015-06-01,,true,
+timekeeping,TX-311,4,2015-06-01,,true,
+timekeeping,TX-322,5,2015-06-01,,true,
+timekeeping,TX-340,6,2015-06-01,,true,
+timekeeping,TX-356,7,2015-06-01,,true,
+timekeeping,TX-371,8,2015-06-01,,true,
+timekeeping,TX-388,9,2015-06-01,,true,
+timekeeping,TX-402,10,2015-06-01,,true,
+timekeeping,OK-118,11,2015-06-01,,true,
+timekeeping,OK-126,12,2015-06-01,,true,
+timekeeping,OK-133,13,2015-06-01,,true,
+timekeeping,OK-147,14,2015-06-01,,true,
+timekeeping,OK-152,15,2015-06-01,,true,
+timekeeping,NM-061,16,2015-06-01,,true,
+timekeeping,NM-074,17,2015-06-01,,true,
+timekeeping,NM-082,18,2015-06-01,,true,
+timekeeping,NM-095,19,2015-06-01,,true,
+timekeeping,NM-103,20,2015-06-01,,true,
+timekeeping,TRAIN-01,,2015-06-01,,false,"district training room, not a store"
+distributor,ST448210,1,2015-06-01,,true,
+distributor,ST448231,2,2015-06-01,,true,
+distributor,ST448307,3,2015-06-01,,true,
+distributor,ST448318,4,2015-06-01,,true,
+distributor,ST448325,5,2015-06-01,,true,
+distributor,ST448342,6,2015-06-01,,true,
+distributor,ST448359,7,2015-06-01,,true,
+distributor,ST448376,8,2015-06-01,,true,
+distributor,ST448390,9,2015-06-01,,true,
+distributor,ST448411,10,2015-06-01,,true,
+distributor,ST731120,11,2015-06-01,,true,
+distributor,ST731134,12,2015-06-01,,true,
+distributor,ST731141,13,2015-06-01,,true,
+distributor,ST731155,14,2015-06-01,,true,
+distributor,ST731168,15,2015-06-01,,true,
+distributor,ST870063,16,2015-06-01,,true,
+distributor,ST870079,17,2015-06-01,,true,
+distributor,ST870086,18,2015-06-01,,true,
+distributor,ST870098,19,2015-06-01,,true,
+distributor,ST870105,20,2015-06-01,,true,
+audits,A7Q2,1,2015-06-01,,true,
+audits,B3K9,2,2015-06-01,,true,
+audits,C8M1,3,2015-06-01,,true,
+audits,D2P6,4,2015-06-01,,true,
+audits,E5R3,5,2015-06-01,,true,
+audits,F9T7,6,2015-06-01,,true,
+audits,G4V2,7,2015-06-01,,true,
+audits,H6W8,8,2015-06-01,,true,
+audits,J1X5,9,2015-06-01,,true,
+audits,K7Y3,10,2015-06-01,,true,
+audits,L2Z9,11,2015-06-01,,true,
+audits,M8A4,12,2015-06-01,,true,
+audits,N3B6,13,2015-06-01,,true,
+audits,P5C1,14,2015-06-01,,true,
+audits,Q9D7,15,2015-06-01,,true,
+audits,R4E2,16,2015-06-01,,true,
+audits,S6F8,17,2015-06-01,,true,
+audits,T1G5,18,2015-06-01,,true,
+audits,U7H3,19,2015-06-01,,true,
+audits,V2J9,20,2015-06-01,,true,
+budget,CEDAR BEND 1,1,2015-06-01,,true,as typed: Cedar Bend #1
+budget,CEDAR BEND 2,2,2015-06-01,,true,as typed: CEDAR BEND 2
+budget,HOLLOWAY,3,2015-06-01,,true,as typed: Holloway
+budget,HARLOW JCT,4,2015-06-01,,true,as typed: Harlow Jct
+budget,BRACKETT FORD,5,2015-06-01,,true,as typed: Brackett Ford
+budget,JUNIPER GAP TX,6,2015-06-01,,true,as typed: Juniper Gap TX
+budget,LARK HOLLOW,7,2015-06-01,,true,as typed: Lark Hollow
+budget,MESQUITE FLATS,8,2015-06-01,,true,as typed: Mesquite Flats
+budget,WOLF CREEK REMODEL,9,2015-06-01,,true,as typed: Wolf Creek (remodel)
+budget,BLUEBONNET SPGS,10,2015-06-01,,true,as typed: Bluebonnet Spgs
+budget,KETTLE ROCK,11,2015-06-01,,true,as typed: Kettle Rock
+budget,ELMWOOD BEND,12,2015-06-01,,true,as typed: Elmwood Bend
+budget,GARNET PRAIRIE,13,2015-06-01,,true,as typed: Garnet Prairie
+budget,CALDER,14,2015-06-01,,true,as typed: Calder
+budget,PRAIRIE HILL,15,2015-06-01,,true,as typed: Prairie Hill
+budget,DALBY CROSSING,16,2015-06-01,,true,as typed: Dalby Crossing
+budget,TESORO MESA 24HR,17,2015-06-01,,true,as typed: Tesoro Mesa 24hr
+budget,COYOTE DRAW,18,2015-06-01,,true,as typed: Coyote Draw
+budget,SABLE WELLS,19,2015-06-01,,true,as typed: Sable Wells
+budget,MICA RDG,20,2015-06-01,,true,as typed: Mica Rdg

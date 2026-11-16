@@ -1,0 +1,145 @@
+# The whole system on one machine: the simulated source systems, Cloud Storage (fake-gcs-server), a Postgres
+# stand-in for BigQuery, the pipeline run as a one-shot job over the synthetic data set, the MCP server and the
+# dashboard. Credentials are generated into the `secrets` volume on first start, standing in for Secret Manager.
+
+x-storeops: &storeops
+  image: storeops:local
+  build: .
+  volumes:
+    - secrets:/secrets
+  environment: &env
+    STOREOPS_SECRETS: file:/secrets
+    STOREOPS_PG_HOST: postgres
+    STOREOPS_PG_PORT: "5432"
+    STOREOPS_PG_DATABASE: warehouse
+    STOREOPS_PG_USER: pipeline
+    STOREOPS_LANDING: gcs
+    STORAGE_EMULATOR_HOST: http://gcs:4443
+    STOREOPS_POS_BASE_URL: http://vendorsim:8000/pos
+    STOREOPS_TIMEKEEPING_BASE_URL: http://vendorsim:8000/timekeeping/odata
+    STOREOPS_AUDITS_BASE_URL: http://vendorsim:8000/audits
+    STOREOPS_SFTP_HOST: vendorsim
+    STOREOPS_SFTP_PORT: "2222"
+    STOREOPS_ALERT_WEBHOOK_URL: http://vendorsim:8000/hooks/slack
+    STOREOPS_VENDORSIM_URL: http://vendorsim:8000
+    STOREOPS_RETRY_BASE_SECONDS: "0.2"
+    # The synthetic data set covers business dates 2026-09-01 to 2026-10-30 and is evaluated at this time.
+    STOREOPS_NOW: "2026-10-31T09:30:00-05:00"
+
+services:
+  secrets:
+    <<: *storeops
+    command: ["storeops", "local-secrets", "--dir", "/secrets"]
+    restart: "no"
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: warehouse
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /secrets/postgres_password
+    volumes:
+      - secrets:/secrets:ro
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5532}:5432"
+    depends_on:
+      secrets:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d warehouse"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  gcs:
+    image: fsouza/fake-gcs-server:1.52.2
+    entrypoint: ["/bin/fake-gcs-server", "-scheme", "http", "-port", "4443", "-external-url", "http://gcs:4443",
+                 "-backend", "filesystem", "-filesystem-root", "/storage"]
+    volumes:
+      - gcsdata:/storage
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:4443/storage/v1/b"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  vendorsim:
+    <<: *storeops
+    command: ["uvicorn", "vendorsim.app:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      <<: *env
+      VENDORSIM_SECRETS_DIR: /secrets
+      VENDORSIM_STATE_DIR: /state
+      VENDORSIM_SFTP_ROOT: /sftp
+      VENDORSIM_SFTP_PORT: "2222"
+      VENDORSIM_BUDGET_BUCKET: finance-drop
+    volumes:
+      - secrets:/secrets
+      - vendorstate:/state
+    ports:
+      - "${VENDORSIM_PORT:-8250}:8000"
+    depends_on:
+      secrets:
+        condition: service_completed_successfully
+      gcs:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 3s
+      timeout: 5s
+      retries: 40
+
+  pipeline:
+    <<: *storeops
+    command: ["storeops", "seed-synthetic"]
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      vendorsim:
+        condition: service_healthy
+      gcs:
+        condition: service_healthy
+
+  mcp:
+    <<: *storeops
+    command: ["storeops", "mcp", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      <<: *env
+      STOREOPS_PG_USER: agent_reader
+    ports:
+      - "${MCP_PORT:-8251}:8000"
+    depends_on:
+      pipeline:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('localhost', 8000), 2)"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  dashboard:
+    <<: *storeops
+    command: ["streamlit", "run", "dashboard/app.py", "--server.port", "8501", "--server.address", "0.0.0.0",
+              "--server.headless", "true", "--browser.gatherUsageStats", "false"]
+    environment:
+      <<: *env
+      STOREOPS_PG_USER: dashboard_reader
+    ports:
+      - "${DASHBOARD_PORT:-8560}:8501"
+    depends_on:
+      pipeline:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health')"]
+      interval: 3s
+      timeout: 5s
+      retries: 40
+
+volumes:
+  secrets:
+  pgdata:
+  gcsdata:
+  vendorstate:

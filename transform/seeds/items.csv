@@ -1,0 +1,28 @@
+item_key,plu,distributor_item_number,item_name,category,is_fresh,units_per_case,list_price
+1,1001,D-40118,"Breakfast taco, egg and cheese",fresh_food,true,6,1.99
+2,1002,D-40121,"Breakfast taco, potato and egg",fresh_food,true,6,1.99
+3,1003,D-40135,Sausage kolache,fresh_food,true,6,1.79
+4,1004,D-40142,Chicken tender basket,fresh_food,true,6,6.99
+5,1005,D-40156,Cheeseburger,fresh_food,true,6,5.49
+6,1006,D-40163,"Pizza slice, pepperoni",fresh_food,true,8,2.99
+7,1007,D-40170,"Pizza slice, cheese",fresh_food,true,8,2.79
+8,1008,D-40184,Hot dog,fresh_food,true,8,1.99
+9,1009,D-40191,Beef taquito,fresh_food,true,8,1.69
+10,1010,D-40205,Chicken fajita wrap,fresh_food,true,6,4.49
+11,2001,,"Coffee, 16 oz",fountain_coffee,false,1,1.89
+12,2002,,"Coffee, 24 oz",fountain_coffee,false,1,2.29
+13,2003,,"Fountain drink, 32 oz",fountain_coffee,false,1,1.49
+14,2004,,"Iced tea, 32 oz",fountain_coffee,false,1,1.49
+15,2005,D-51012,"Cola, 20 oz bottle",packaged_beverage,false,24,2.29
+16,2006,D-51029,"Lemon-lime soda, 20 oz bottle",packaged_beverage,false,24,2.29
+17,2007,D-51036,"Spring water, 1 L",packaged_beverage,false,12,1.99
+18,2008,D-51043,"Energy drink, 16 oz",packaged_beverage,false,24,3.29
+19,2009,D-51050,"Sports drink, 28 oz",packaged_beverage,false,15,2.49
+20,3001,D-62014,"Potato chips, 2.5 oz",packaged_snack,false,48,2.19
+21,3002,D-62021,"Beef jerky, 2.85 oz",packaged_snack,false,12,7.99
+22,3003,D-62038,Chocolate bar,packaged_snack,false,36,1.89
+23,3004,D-62045,Roasted peanuts,packaged_snack,false,24,1.49
+24,3005,D-62052,"Chocolate chip cookies, 2-pack",packaged_snack,false,24,1.99
+25,3006,,"Bag of ice, 10 lb",other,false,1,3.49
+26,3007,D-62069,Spearmint gum,packaged_snack,false,40,1.79
+27,5001,,"Fuel, regular unleaded",fuel,false,1,

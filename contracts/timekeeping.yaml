@@ -1,0 +1,57 @@
+source: timekeeping
+system: Workforce management system
+protocol: OData v4, basic auth, $filter and $select, nextLink paging
+owner: HR systems
+schedule: "15 6 * * *"            # after this system's own 05:00-local sales import in both time zones
+timezone: America/Chicago
+freshness:
+  kind: daily
+  landed_by: "07:00"
+lookback_days: 2
+business_day:
+  cutoff: "04:00"
+  timezones: [America/Chicago, America/Denver]
+tables:
+  timekeeping_shifts:
+    entity: Shifts
+    description: One row per worked shift. ClockIn decides the business date.
+    key: [shift_id]
+    cluster_by: [location_code]
+    fields:
+      ShiftId: {class: keep, type: string, as: shift_id}
+      EmployeeId: {class: hash, type: string, as: employee_key, pii: employee_id}
+      LocationCode: {class: keep, type: string, as: location_code}
+      JobCode: {class: keep, type: string, as: job_code}
+      ClockIn: {class: keep, type: timestamp, as: clock_in}
+      ClockOut: {class: keep, type: timestamp, as: clock_out}
+      BreakMinutes: {class: keep, type: integer, as: break_minutes}
+      ModifiedAt: {class: keep, type: timestamp, as: modified_at}
+  timekeeping_daily_sales:
+    entity: DailySales
+    description: >-
+      The timekeeping system's own copy of daily net sales, imported from the POS at 05:00 local for labor
+      forecasting. The key reconciliation compares POS totals against it.
+    key: [location_code, business_date]
+    fields:
+      LocationCode: {class: keep, type: string, as: location_code}
+      BusinessDate: {class: keep, type: date, as: business_date}
+      NetSales: {class: keep, type: numeric, as: net_sales}
+      ImportedAt: {class: keep, type: timestamp, as: imported_at}
+  timekeeping_employees:
+    entity: Employees
+    description: Employee snapshot. Identity fields are never requested, and pay rate lands only in raw_restricted.
+    key: [employee_key]
+    restricted_key: [employee_key]
+    fields:
+      EmployeeId: {class: hash, type: string, as: employee_key, pii: employee_id}
+      FirstName: {class: drop, pii: name}
+      LastName: {class: drop, pii: name}
+      SSN: {class: drop, pii: ssn}
+      BirthDate: {class: drop, pii: dob}
+      HomeAddress: {class: drop, pii: address}
+      HomeLocationCode: {class: keep, type: string, as: home_location_code}
+      JobCode: {class: keep, type: string, as: job_code}
+      HireDate: {class: keep, type: date, as: hire_date}
+      TerminationDate: {class: keep, type: date, as: termination_date}
+      PayRate: {class: restrict, type: numeric, as: pay_rate, pii: pay}
+      Notes: {class: drop, pii: free_text, note: "managers typed SSNs here, so the field is dropped"}

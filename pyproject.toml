@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "storeops"
+version = "1.0.0"
+description = "Governed ingestion of store systems (POS, timekeeping, distributor, audits, budgets) into a layered BigQuery warehouse for AI agents."
+requires-python = ">=3.12"
+license = "MIT"
+authors = [{ name = "Alex Kurinets" }]
+dependencies = [
+  "dbt-core==1.12.7",
+  "dbt-postgres==1.11.0",
+  "httpx==0.28.1",
+  "paramiko==5.1.0",
+  "asyncssh==2.24.1",
+  "openpyxl==3.1.5",
+  "psycopg[binary]==3.3.9",
+  "croniter==7.0.0",
+  "typer==0.29.1",
+  "pyyaml==6.0.3",
+  "google-cloud-storage==3.17.1",
+  "google-cloud-bigquery==3.47.0",
+  "google-cloud-secret-manager==2.32.0",
+  "fastapi==0.163.1",
+  "uvicorn==0.54.0",
+  "python-multipart==0.0.20",
+  "mcp==2.3.0",
+  "streamlit==1.67.0",
+  "pandas==3.1.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest==9.2.0", "ruff==0.17.5"]
+
+[project.scripts]
+storeops = "storeops.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = ["warehouse: needs Postgres (TEST_DATABASE_URL)"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["B008", "UP007"]

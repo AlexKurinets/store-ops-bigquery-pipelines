@@ -1,0 +1,49 @@
+version: 2
+
+seeds:
+  - name: stores
+    description: One row per store, with its time zone and the hour its business day starts.
+    columns:
+      - name: store_key
+        data_tests: [unique, not_null]
+      - name: timezone
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["America/Chicago", "America/Denver"]
+
+  - name: store_xref
+    description: >-
+      Store crosswalk maintained by operations. One row per system code and the dates it was valid, so a store
+      renumbered after a remodel keeps one store_key across both numbers. Budget rows hold finance's store names in
+      normalized form. Rows marked not reportable (the training room) map to no store on purpose.
+    columns:
+      - name: system
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["pos", "timekeeping", "distributor", "audits", "budget"]
+      - name: store_key
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stores')
+                field: store_key
+    data_tests:
+      - unique_combination_of:
+          arguments:
+            columns: ["system", "source_code", "valid_from"]
+
+  - name: items
+    description: Item master mapping POS PLUs to distributor item numbers.
+    columns:
+      - name: item_key
+        data_tests: [unique, not_null]
+      - name: plu
+        data_tests: [unique, not_null]
+
+  - name: dayparts
+    description: Local hour to daypart.
+    columns:
+      - name: local_hour
+        data_tests: [unique, not_null]

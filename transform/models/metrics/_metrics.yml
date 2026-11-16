@@ -1,0 +1,220 @@
+version: 2
+
+# These descriptions are persisted into the warehouse (persist_docs), and the MCP server serves them to agents
+# with the data, so they are written for a reader who has never seen the source systems.
+
+models:
+  - name: store_day_sales_labor
+    description: >-
+      One row per store and business date. A business date runs from 04:00 local to 04:00 the next day, so
+      overnight sales count toward the evening before. Use it for labor scheduling and sales per labor hour. Skip
+      rows where reconciled is false when a forecast needs exact sales.
+    data_tests:
+      - unique_combination_of:
+          arguments:
+            columns: ["store_key", "business_date"]
+    columns:
+      - name: store_key
+        description: Store identifier shared by every table in this dataset.
+        data_tests: [not_null]
+      - name: store_name
+        description: Store name.
+      - name: business_date
+        description: Business date (04:00 to 04:00 local).
+      - name: net_sales
+        description: POS sales in dollars after voids, before tax.
+      - name: transactions
+        description: Tickets that were not voided.
+      - name: labor_hours
+        description: Paid hours from the timekeeping system, after breaks, by shift start.
+      - name: labor_cost
+        description: Labor cost in dollars, totalled inside the restricted dataset from pay rates agents cannot read.
+      - name: sales_per_labor_hour
+        description: net_sales divided by labor_hours.
+      - name: labor_cost_pct
+        description: labor_cost divided by net_sales, as a fraction.
+      - name: reconciled
+        description: True when POS sales match the timekeeping system's imported sales within 0.5% for this store and date.
+
+  - name: store_daypart_sales
+    description: >-
+      Sales and tickets per store, business date and daypart (breakfast 04-09, lunch 10-13, afternoon 14-16,
+      dinner 17-20, late night 21-03, local hours). Use it to place shifts where the demand is.
+    data_tests:
+      - unique_combination_of:
+          arguments:
+            columns: ["store_key", "business_date", "daypart"]
+    columns:
+      - name: store_key
+        description: Store identifier.
+      - name: business_date
+        description: Business date (04:00 to 04:00 local).
+      - name: daypart
+        description: breakfast, lunch, afternoon, dinner or late_night.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["breakfast", "lunch", "afternoon", "dinner", "late_night"]
+      - name: daypart_order
+        description: 1 for breakfast through 5 for late night, for sorting.
+      - name: net_sales
+        description: POS sales in dollars after voids.
+      - name: transactions
+        description: Tickets that were not voided.
+
+  - name: item_daypart_demand
+    description: >-
+      Units sold of each fresh food item per store, business date and daypart. This is the history the fresh-food
+      production agent forecasts from.
+    columns:
+      - name: store_key
+        description: Store identifier.
+      - name: business_date
+        description: Business date (04:00 to 04:00 local).
+      - name: daypart
+        description: breakfast, lunch, afternoon, dinner or late_night.
+      - name: item_key
+        description: Item identifier.
+      - name: item_name
+        description: Item name.
+      - name: units_sold
+        description: Units sold, voids excluded.
+
+  - name: fresh_food_weekly
+    description: >-
+      Fresh food received from the distributor against units sold, per store, Monday-start week and item. A low
+      sell-through means the store is making or ordering more than it sells.
+    columns:
+      - name: store_key
+        description: Store identifier.
+      - name: week_start
+        description: Monday of the week.
+      - name: item_key
+        description: Item identifier.
+      - name: item_name
+        description: Item name.
+      - name: units_received
+        description: Units delivered (cases times units per case).
+      - name: units_sold
+        description: Units sold, voids excluded.
+      - name: sell_through_pct
+        description: units_sold divided by units_received, as a fraction.
+      - name: is_complete_week
+        description: True once all seven days of the week are loaded; compare only complete weeks.
+
+  - name: store_checklist_weekly
+    description: >-
+      Opening checklist completion and checklist pass rate per store and Monday-start week. Every open store-day
+      expects one opening checklist.
+    columns:
+      - name: store_key
+        description: Store identifier.
+      - name: week_start
+        description: Monday of the week.
+      - name: open_days
+        description: Days the store had sales.
+      - name: opening_checklists_done
+        description: Open days with an opening checklist submitted.
+      - name: completion_pct
+        description: opening_checklists_done divided by open_days.
+      - name: items_failed
+        description: Checklist items answered fail, including temperatures out of range.
+      - name: pass_rate_pct
+        description: Share of answered items that passed.
+      - name: is_complete_week
+        description: True when the whole week falls inside the loaded dates.
+
+  - name: store_month_vs_budget
+    description: >-
+      Sales and labor hours so far in the month against finance's budget for the same share of the month, per
+      store and fiscal month. A month in progress is compared with its days loaded, not the whole month.
+    data_tests:
+      - unique_combination_of:
+          arguments:
+            columns: ["store_key", "fiscal_month"]
+    columns:
+      - name: store_key
+        description: Store identifier.
+      - name: fiscal_month
+        description: Fiscal month as YYYY-MM.
+      - name: days_with_data
+        description: Business dates loaded for the month.
+      - name: days_in_month
+        description: Calendar days in the month.
+      - name: net_sales
+        description: Actual sales in dollars for the days loaded so far.
+      - name: budget_net_sales
+        description: Budgeted sales in dollars for the whole month.
+      - name: budget_net_sales_to_date
+        description: Budgeted sales pro-rated to the days loaded.
+      - name: sales_vs_budget_pct
+        description: net_sales divided by budget_net_sales_to_date.
+      - name: labor_hours
+        description: Actual paid hours for the days loaded so far.
+      - name: budget_labor_hours
+        description: Budgeted labor hours for the whole month.
+      - name: labor_hours_vs_budget_pct
+        description: labor_hours divided by the budgeted hours pro-rated to the days loaded.
+      - name: budget_version
+        description: Version of finance's workbook in use for the month (1 is the first upload; a correction makes it 2).
+
+  - name: key_reconciliation_daily
+    description: >-
+      POS sales against the timekeeping system's own copy of daily sales, per store and business date. A match is
+      within 0.5% (or a dollar). For a mismatch, reason says whether a POS change after the timekeeping system's
+      05:00 import explains it, whether one side is missing, or whether it is unexplained.
+    data_tests:
+      - unique_combination_of:
+          arguments:
+            columns: ["store_key", "business_date"]
+    columns:
+      - name: store_key
+        description: Store identifier.
+      - name: business_date
+        description: Business date (04:00 to 04:00 local).
+      - name: pos_net_sales
+        description: POS sales after voids, from the POS connector.
+      - name: labor_system_net_sales
+        description: Daily sales the timekeeping system imported from the POS at 05:00 the next morning.
+      - name: difference
+        description: pos_net_sales minus labor_system_net_sales.
+      - name: pos_net_sales_at_import
+        description: POS sales counting only tickets received, and voids posted, before the timekeeping import.
+      - name: labor_imported_at
+        description: When the timekeeping system imported the day's sales.
+      - name: status
+        description: matched or mismatch.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["matched", "mismatch"]
+      - name: reason
+        description: Null when matched; otherwise pos_changed_after_labor_import, missing_in_labor_system, missing_in_pos or unexplained.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["pos_changed_after_labor_import", "missing_in_labor_system", "missing_in_pos", "unexplained"]
+      - name: matched_calendar_date
+        description: Whether the day would match if POS were bucketed by local calendar date instead of business date. Kept to show why the business date rule exists.
+      - name: pos_net_sales_calendar_date
+        description: POS sales bucketed by local calendar date.
+
+  - name: source_freshness
+    description: Latest freshness check for each source against the SLA in its contract. Check it before using a table.
+    columns:
+      - name: source
+        description: pos, timekeeping, distributor, audits or budgets.
+      - name: status
+        description: on_time or late.
+      - name: sla
+        description: The freshness promise from the source's contract.
+      - name: expected_batch
+        description: The business date (or month start, for budgets) that should be loaded by now.
+      - name: latest_batch
+        description: The latest business date (or month) actually loaded.
+      - name: landed_at
+        description: When the latest successful run finished.
+      - name: due_at
+        description: When expected_batch was due.
+      - name: checked_at
+        description: When the check ran.

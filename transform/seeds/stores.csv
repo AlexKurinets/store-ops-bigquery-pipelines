@@ -1,0 +1,21 @@
+store_key,store_name,state,timezone,day_start_hour,is_24h,opened_on
+1,Cedar Bend,TX,America/Chicago,4,false,2015-06-01
+2,Cedar Bend 2,TX,America/Chicago,4,false,2015-06-01
+3,Holloway,TX,America/Chicago,4,false,2015-06-01
+4,Harlow Junction,TX,America/Chicago,4,true,2015-06-01
+5,Brackett Ford,TX,America/Chicago,4,false,2015-06-01
+6,Juniper Gap,TX,America/Chicago,4,false,2015-06-01
+7,Lark Hollow,TX,America/Chicago,4,false,2015-06-01
+8,Mesquite Flats,TX,America/Chicago,4,false,2015-06-01
+9,Wolf Creek,TX,America/Chicago,4,false,2015-06-01
+10,Bluebonnet Springs,TX,America/Chicago,4,false,2015-06-01
+11,Kettle Rock,OK,America/Chicago,4,false,2015-06-01
+12,Elmwood Bend,OK,America/Chicago,4,false,2015-06-01
+13,Garnet Prairie,OK,America/Chicago,4,false,2015-06-01
+14,Calder,OK,America/Chicago,4,false,2015-06-01
+15,Prairie Hill,OK,America/Chicago,4,false,2015-06-01
+16,Dalby Crossing,NM,America/Denver,4,false,2015-06-01
+17,Tesoro Mesa,NM,America/Denver,4,true,2015-06-01
+18,Coyote Draw,NM,America/Denver,4,false,2015-06-01
+19,Sable Wells,NM,America/Denver,4,false,2015-06-01
+20,Mica Ridge,NM,America/Denver,4,false,2015-06-01

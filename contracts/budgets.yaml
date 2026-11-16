@@ -1,0 +1,23 @@
+source: budgets
+system: Finance budget workbooks
+protocol: Cloud Storage bucket, one .xlsx per fiscal month, reloaded when a new object generation appears
+owner: finance
+schedule: "0 6 * * *"
+timezone: America/Chicago
+freshness:
+  kind: monthly
+  day_of_month: 3
+  landed_by: "06:00"
+lookback_days: 0
+tables:
+  budget_store_month:
+    description: One row per store and fiscal month as typed in finance's workbook. Store names map through crosswalk aliases.
+    key: [fiscal_month, store_name, source_generation]
+    fields:
+      fiscal_month: {class: keep, type: string}
+      store_name: {class: keep, type: string}
+      budget_net_sales: {class: keep, type: numeric}
+      budget_labor_hours: {class: keep, type: numeric}
+      budget_labor_cost: {class: keep, type: numeric}
+      source_object: {class: keep, type: string}
+      source_generation: {class: keep, type: integer}

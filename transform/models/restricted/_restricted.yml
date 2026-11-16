@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: labor_cost_store_day
+    description: Labor cost per store and business date, computed from restricted pay rates. Only this total leaves the restricted datasets.
+    data_tests:
+      - unique_combination_of:
+          arguments:
+            columns: ["store_key", "business_date"]
+    columns:
+      - name: hours_without_rate
+        description: Paid hours with no pay rate on file; should be zero.

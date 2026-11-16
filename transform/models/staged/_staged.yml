@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: stg_pos_lines
+    description: POS ticket lines, latest version of each line across the overlapping three-day reloads.
+    data_tests:
+      - unique_combination_of:
+          arguments:
+            columns: ["transaction_id", "line_number"]
+    columns:
+      - name: operator_key
+        description: HMAC of the cashier's employee ID; joins to employee_key in timekeeping.
+  - name: stg_timekeeping_shifts
+    description: Completed shifts, latest version of each.
+    columns:
+      - name: shift_id
+        data_tests: [unique, not_null]
+  - name: stg_timekeeping_daily_sales
+    description: The timekeeping system's imported daily sales, one row per location and business date.
+    data_tests:
+      - unique_combination_of:
+          arguments:
+            columns: ["location_code", "business_date"]
+  - name: stg_timekeeping_employees
+    description: Latest employee snapshot without identity fields or pay.
+    columns:
+      - name: employee_key
+        data_tests: [unique, not_null]
+  - name: stg_distributor_invoice_lines
+    description: Invoice lines from files that passed the manifest check.
+    data_tests:
+      - unique_combination_of:
+          arguments:
+            columns: ["invoice_no", "line_no"]
+  - name: stg_distributor_inventory_counts
+    description: Weekly on-hand counts.
+  - name: stg_audit_checklist_items
+    description: Checklist answers with comments already masked at ingestion.
+    data_tests:
+      - unique_combination_of:
+          arguments:
+            columns: ["submission_id", "item_code"]
+  - name: stg_budget_store_month
+    description: Budget rows from the newest workbook generation for each fiscal month.

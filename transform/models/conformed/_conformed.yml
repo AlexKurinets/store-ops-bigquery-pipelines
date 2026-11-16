@@ -1,0 +1,88 @@
+version: 2
+
+models:
+  - name: dim_store
+    description: One row per store with its current code in each source system.
+    columns:
+      - name: store_key
+        data_tests: [unique, not_null]
+
+  - name: dim_date
+    description: Calendar with ISO weekdays, Monday-start fiscal weeks and fiscal months.
+    columns:
+      - name: date_day
+        data_tests: [unique, not_null]
+
+  - name: dim_item
+    description: Items with category and whether they are fresh food made in store.
+    columns:
+      - name: item_key
+        data_tests: [unique, not_null]
+
+  - name: dim_employee
+    description: Employees by hashed key, home store and job code. No names, identifiers or pay.
+    columns:
+      - name: employee_key
+        data_tests: [unique, not_null]
+
+  - name: fct_pos_lines
+    description: POS lines with store_key, business date (local time minus the day-start hour) and daypart.
+    data_tests:
+      - unique_combination_of:
+          arguments:
+            columns: ["transaction_id", "line_number"]
+    columns:
+      - name: store_key
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_store')
+                field: store_key
+      - name: business_date
+        data_tests: [not_null]
+      - name: daypart
+        data_tests: [not_null]
+
+  - name: fct_labor_shifts
+    description: Worked shifts by store and business date, with paid hours after breaks.
+    columns:
+      - name: shift_id
+        data_tests: [unique, not_null]
+      - name: paid_hours
+        data_tests:
+          - at_least:
+              arguments:
+                min_value: 0
+
+  - name: fct_labor_system_sales
+    description: Daily sales as imported by the timekeeping system, by store and business date.
+    data_tests:
+      - unique_combination_of:
+          arguments:
+            columns: ["store_key", "business_date"]
+
+  - name: fct_purchase_lines
+    description: Distributor invoice lines by store and delivery date, in units.
+    columns:
+      - name: item_key
+        data_tests: [not_null]
+
+  - name: fct_inventory_counts
+    description: Weekly on-hand counts by store and item.
+
+  - name: fct_checklist_items
+    description: Checklist answers by store and business date.
+
+  - name: fct_store_budget_month
+    description: Store budgets by fiscal month from the latest workbook version.
+    data_tests:
+      - unique_combination_of:
+          arguments:
+            columns: ["store_key", "fiscal_month"]
+
+  - name: unmapped_keys
+    description: Source codes no crosswalk row maps, with row counts and first and last seen dates.
+
+  - name: load_status
+    description: First loaded date, last complete business date across POS and labor, and the last date the timekeeping system's imported sales are in.

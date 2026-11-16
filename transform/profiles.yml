@@ -1,0 +1,22 @@
+# Credentials come from the environment, which storeops fills from Secret Manager (or the local secrets volume).
+storeops:
+  target: local
+  outputs:
+    local:
+      type: postgres
+      host: "{{ env_var('STOREOPS_PG_HOST', 'localhost') }}"
+      port: "{{ env_var('STOREOPS_PG_PORT', '5432') | int }}"
+      user: "{{ env_var('STOREOPS_PG_USER', 'pipeline') }}"
+      password: "{{ env_var('STOREOPS_PG_PASSWORD', '') }}"
+      dbname: "{{ env_var('STOREOPS_PG_DATABASE', 'warehouse') }}"
+      schema: public
+      threads: 4
+    prod:
+      type: bigquery
+      method: oauth            # the Cloud Run job's service account, through application default credentials
+      project: "{{ env_var('STOREOPS_BQ_PROJECT', 'unset') }}"
+      dataset: analytics
+      location: US
+      threads: 8
+      job_execution_timeout_seconds: 600
+      maximum_bytes_billed: 50000000000

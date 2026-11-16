@@ -1,0 +1,29 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    description: Landed source data, one partition per batch date, written only by the storeops connectors after the field contract is applied.
+    tables:
+      - name: pos_transaction_lines
+      - name: timekeeping_shifts
+      - name: timekeeping_daily_sales
+      - name: timekeeping_employees
+      - name: distributor_invoice_lines
+      - name: distributor_inventory_counts
+      - name: audit_checklist_items
+      - name: budget_store_month
+
+  - name: raw_restricted
+    schema: raw_restricted
+    description: Restricted fields (pay rates). Readable by the pipeline and finance, never by agents or the dashboard.
+    tables:
+      - name: timekeeping_employees
+
+  - name: ops
+    schema: ops
+    description: Append-only run log, checks and alerts written by storeops.
+    tables:
+      - name: pipeline_runs
+      - name: freshness_checks
+      - name: alerts

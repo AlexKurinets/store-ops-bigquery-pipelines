@@ -1,0 +1,30 @@
+source: audits
+system: Store audit app
+protocol: REST, API key header, page paging
+owner: store operations
+schedule: "30 6 * * *"
+timezone: America/Chicago
+freshness:
+  kind: daily
+  landed_by: "07:00"
+lookback_days: 2
+business_day:
+  cutoff: "04:00"
+  timezones: [America/Chicago, America/Denver]
+tables:
+  audit_checklist_items:
+    description: One row per checklist item answered in an opening checklist or a weekly food-safety walk.
+    key: [submission_id, item_code]
+    cluster_by: [site_id]
+    fields:
+      submission_id: {class: keep, type: string}
+      site_id: {class: keep, type: string, description: "Audit app site ID, mapped to store_key through the crosswalk"}
+      checklist: {class: keep, type: string}
+      submitted_at: {class: keep, type: timestamp}
+      submitted_by_name: {class: drop, pii: name}
+      submitted_by_email: {class: drop, pii: email}
+      item_code: {class: keep, type: string}
+      question: {class: keep, type: string}
+      result: {class: keep, type: string}
+      temperature_f: {class: keep, type: numeric}
+      comment: {class: mask, type: string, pii: free_text, description: "Free text with SSNs, card numbers, emails and phone numbers replaced by markers"}

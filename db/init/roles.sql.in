@@ -1,0 +1,25 @@
+-- Local stand-in for BigQuery datasets and IAM: one schema per dataset, one role per reader.
+-- Run by 01-roles.sh with the passwords from the secrets volume; tests run it against a throwaway database.
+create role pipeline login password :'pipe';
+create role dashboard_reader login password :'dash';
+create role agent_reader login password :'agent';
+grant connect, create on database :"db" to pipeline;
+grant connect on database :"db" to dashboard_reader, agent_reader;
+
+create schema raw authorization pipeline;
+create schema raw_restricted authorization pipeline;
+create schema reference authorization pipeline;
+create schema staged authorization pipeline;
+create schema conformed authorization pipeline;
+create schema restricted authorization pipeline;
+create schema metrics authorization pipeline;
+create schema ops authorization pipeline;
+
+-- Agents read the metrics dataset and nothing else.
+grant usage on schema metrics to agent_reader;
+alter default privileges for role pipeline in schema metrics grant select on tables to agent_reader;
+
+-- The operations dashboard also reads ops, conformed and the reference seeds, never raw or restricted data.
+grant usage on schema metrics, ops, conformed, reference to dashboard_reader;
+alter default privileges for role pipeline in schema metrics, ops, conformed, reference
+  grant select on tables to dashboard_reader;

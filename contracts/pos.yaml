@@ -1,0 +1,35 @@
+source: pos
+system: Cloud POS
+protocol: REST, OAuth2 client credentials, cursor paging
+owner: store systems team
+schedule: "15 5 * * *"            # Cloud Scheduler cron, in the timezone below; after 04:00 MT closes the last store day
+timezone: America/Chicago
+freshness:
+  kind: daily
+  landed_by: "06:00"
+lookback_days: 2                  # each run reloads its business date and the two before it
+business_day:
+  cutoff: "04:00"                 # the window is widened to cover every store's 04:00-to-04:00 day
+  timezones: [America/Chicago, America/Denver]
+tables:
+  pos_transaction_lines:
+    description: One row per POS ticket line, flattened from the transaction header and its lines.
+    key: [transaction_id, line_number]
+    cluster_by: [store_number]
+    fields:
+      transaction_id: {class: keep, type: string}
+      line_number: {class: keep, type: integer}
+      store_number: {class: keep, type: string, description: "POS store number, mapped to store_key through the crosswalk"}
+      register_id: {class: keep, type: string}
+      operator_id: {class: hash, type: string, as: operator_key, pii: employee_id, description: "Cashier's employee ID, hashed with the same key as timekeeping"}
+      closed_at: {class: keep, type: timestamp, description: "When the ticket was closed (UTC)"}
+      received_at: {class: keep, type: timestamp, description: "When the POS cloud received the ticket, late for offline terminals"}
+      voided_at: {class: keep, type: timestamp}
+      updated_at: {class: keep, type: timestamp}
+      tender_type: {class: keep, type: string}
+      card_number: {class: drop, pii: card, note: "masked by the POS, and not needed downstream"}
+      plu: {class: keep, type: string}
+      description: {class: keep, type: string}
+      quantity: {class: keep, type: integer}
+      unit_price: {class: keep, type: numeric}
+      extended_price: {class: keep, type: numeric}

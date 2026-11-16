@@ -1,0 +1,37 @@
+source: distributor
+system: Foodservice distributor
+protocol: SFTP with a pinned host key, nightly CSV files and a JSON manifest (SHA-256 and row count per file)
+owner: purchasing
+schedule: "30 7 * * *"
+timezone: America/Chicago
+freshness:
+  kind: daily
+  landed_by: "09:00"
+lookback_days: 0
+tables:
+  distributor_invoice_lines:
+    description: One row per invoice line for deliveries made on the batch date.
+    key: [invoice_no, line_no]
+    cluster_by: [ship_to]
+    fields:
+      invoice_no: {class: keep, type: string}
+      line_no: {class: keep, type: integer}
+      ship_to: {class: keep, type: string, description: "Distributor ship-to account, mapped to store_key through the crosswalk"}
+      delivery_date: {class: keep, type: date}
+      item_number: {class: keep, type: string}
+      description: {class: keep, type: string}
+      cases: {class: keep, type: integer}
+      units_per_case: {class: keep, type: integer}
+      case_cost: {class: keep, type: numeric}
+      extended_cost: {class: keep, type: numeric}
+      driver_name: {class: drop, pii: name}
+      source_file: {class: keep, type: string}
+  distributor_inventory_counts:
+    description: Weekly on-hand counts the distributor's merchandiser takes on Mondays.
+    key: [ship_to, count_date, item_number]
+    fields:
+      ship_to: {class: keep, type: string}
+      count_date: {class: keep, type: date}
+      item_number: {class: keep, type: string}
+      units_on_hand: {class: keep, type: integer}
+      source_file: {class: keep, type: string}
